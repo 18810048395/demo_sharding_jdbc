@@ -1,0 +1,64 @@
+读写分离：
+docker run -d \
+-p 3306:3306 \
+-v /home/yanghe/atguigu/mysql/master/conf:/etc/mysql/conf.d \
+-v /home/yanghe/atguigu/mysql/master/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=123456 \
+--name atguigu-mysql-master \
+mysql:8.0.29
+
+binlog.000003 1357
+
+docker run -d \
+-p 3307:3306 \
+-v /home/yanghe/atguigu/mysql/slave1/conf:/etc/mysql/conf.d \
+-v /home/yanghe/atguigu/mysql/slave1/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=123456 \
+--name atguigu-mysql-slave1 \
+mysql:8.0.29
+
+CHANGE MASTER TO MASTER_HOST='192.168.1.36', 
+MASTER_USER='atguigu_slave',MASTER_PASSWORD='123456', MASTER_PORT=3306,
+MASTER_LOG_FILE='binlog.000003',MASTER_LOG_POS=1357;
+
+docker run -d \
+-p 3308:3306 \
+-v /home/yanghe/atguigu/mysql/slave2/conf:/etc/mysql/conf.d \
+-v /home/yanghe/atguigu/mysql/slave2/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=123456 \
+--name atguigu-mysql-slave2 \
+mysql:8.0.29
+
+垂直分库：
+docker run -d \
+-p 3301:3306 \
+-v /home/yanghe/atguigu/server/user/conf:/etc/mysql/conf.d \
+-v /home/yanghe/atguigu/server/user/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=123456 \
+--name server-user \
+mysql:8.0.29
+
+docker run -d \
+-p 3302:3306 \
+-v /home/yanghe/atguigu/server/order/conf:/etc/mysql/conf.d \
+-v /home/yanghe/atguigu/server/order/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=123456 \
+--name server-order \
+mysql:8.0.29
+
+水平分库分表：
+docker run -d \
+-p 3310:3306 \
+-v /home/yanghe/atguigu/server/order0/conf:/etc/mysql/conf.d \
+-v /home/yanghe/atguigu/server/order0/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=123456 \
+--name server-order0 \
+mysql:8.0.29
+
+docker run -d \
+-p 3311:3306 \
+-v /home/yanghe/atguigu/server/order1/conf:/etc/mysql/conf.d \
+-v /home/yanghe/atguigu/server/order1/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=123456 \
+--name server-order1 \
+mysql:8.0.29

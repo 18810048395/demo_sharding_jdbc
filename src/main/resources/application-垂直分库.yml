@@ -1,0 +1,29 @@
+spring:
+    application:
+        name: sharding-jdbc-demo
+    profiles:
+        active: dev
+    shardingsphere:
+        datasource:
+            names: server-user,server-order
+            server-order:
+                driver-class-name: com.mysql.jdbc.Driver
+                jdbc-url: jdbc:mysql://192.168.1.36:3302/db_order
+                password: 123456
+                type: com.zaxxer.hikari.HikariDataSource
+                username: root
+            server-user:
+                driver-class-name: com.mysql.jdbc.Driver
+                jdbc-url: jdbc:mysql://192.168.1.36:3301/db_user
+                password: 123456
+                type: com.zaxxer.hikari.HikariDataSource
+                username: root
+        props:
+            sql-show: true
+        rules:
+            sharding:
+                tables:
+                    t_order:
+                        actual-data-nodes: server-order.t_order
+                    t_user:
+                        actual-data-nodes: server-user.t_user

@@ -1,0 +1,59 @@
+spring:
+    application:
+        name: sharging-jdbc-demo
+    profiles:
+        active: dev
+    shardingsphere:
+        datasource:
+            names: server-user,server-order0,server-order1
+            server-order0:
+                driver-class-name: com.mysql.jdbc.Driver
+                jdbc-url: jdbc:mysql://192.168.1.36:3310/db_order
+                password: 123456
+                type: com.zaxxer.hikari.HikariDataSource
+                username: root
+            server-order1:
+                driver-class-name: com.mysql.jdbc.Driver
+                jdbc-url: jdbc:mysql://192.168.1.36:3311/db_order
+                password: 123456
+                type: com.zaxxer.hikari.HikariDataSource
+                username: root
+            server-user:
+                driver-class-name: com.mysql.jdbc.Driver
+                jdbc-url: jdbc:mysql://192.168.1.36:3301/db_user
+                password: 123456
+                type: com.zaxxer.hikari.HikariDataSource
+                username: root
+        mode:
+            type: Memory
+        props:
+            sql-show: true
+        rules:
+            sharding:
+                sharding-algorithms:
+                    alg_inline_userid:
+                        props:
+                            algorithm-expression: server-order$->{user_id % 2}
+                        type: INLINE
+                    alg_mod:
+                        props:
+                            sharding-count: 2
+                        type: MOD
+                    alg_hash_mod:
+                        props:
+                            sharding-count: 2
+                        type: HASH_MOD
+
+                tables:
+                    t_order:
+                        actual-data-nodes: server-order$->{0..1}.t_order$->{0..1}
+                        database-strategy:
+                            standard:
+                                sharding-algorithm-name: alg_inline_userid
+                                sharding-column: user_id
+                        table-strategy:
+                            standard:
+                                sharding-algorithm-name: alg_hash_mod
+                                sharding-column: order_no
+                    t_user:
+                        actual-data-nodes: server-user.t_user

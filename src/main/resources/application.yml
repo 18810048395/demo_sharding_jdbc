@@ -8,7 +8,7 @@ spring:
             names: server-user
             server-user:
                 driver-class-name: com.mysql.jdbc.Driver
-                jdbc-url: jdbc:mysql://192.168.1.36:3301/db_user
+                jdbc-url: jdbc:mysql://192.168.1.36:3301/db_user?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
                 password: 123456
                 type: com.zaxxer.hikari.HikariDataSource
                 username: root
@@ -23,16 +23,28 @@ spring:
                         props:
                             sharding-count: 2
                         type: HASH_MOD
-                    my_algorithm:
+                    my_hash_algorithm:
                         props:
                             strategy: standard
                             # 自定义标准分配算法
-                            algorithmClassName: com.example.shardingjdbc.config.MyShardingAlgorithm
+                            algorithmClassName: com.example.shardingjdbc.config.MyHashShardingAlgorithm
                         type: CLASS_BASED
+                    my_time_algorithm:
+                        props:
+                            strategy: standard
+                            # 自定义标准分配算法
+                            algorithmClassName: com.example.shardingjdbc.config.MyTimeShardingAlgorithm
+                        type: CLASS_BASED
+
                 tables:
                     t_yh:
-                        actual-data-nodes: server-user.t_yh$->{0..9}
+                        actual-data-nodes: server-user.t_yh2023_$->{1..5}
                         table-strategy:
                             standard:
-                                sharding-algorithm-name: my_algorithm
-                                sharding-column: name
+                                sharding-algorithm-name: my_time_algorithm
+                                sharding-column: create_time
+#                        actual-data-nodes: server-user.t_yh$->{0..1}
+#                        table-strategy:
+#                                standard:
+#                                    sharding-algorithm-name: my_hash_algorithm
+#                                    sharding-column: name

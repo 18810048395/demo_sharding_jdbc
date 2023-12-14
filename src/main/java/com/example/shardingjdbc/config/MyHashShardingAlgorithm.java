@@ -10,11 +10,15 @@ import java.util.*;
  
 
 //@Component
-public class MyShardingAlgorithm implements StandardShardingAlgorithm<String> {
+public class MyHashShardingAlgorithm implements StandardShardingAlgorithm<String> {
  
 
     @Override
     public String doSharding(Collection<String> collection, PreciseShardingValue<String> preciseShardingValue) {
+        /**
+         * 适配分表为server-user.t_yh$->{0..9}
+         * t_yh0,t_yh1....
+         */
         for (String targetName : collection) {
             if (targetName.endsWith(preciseShardingValue.getValue().hashCode() % 2 + "")) {
                 return targetName;

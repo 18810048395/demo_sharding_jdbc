@@ -9,7 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 @SpringBootTest
 public class YhTest {
@@ -23,11 +27,17 @@ public class YhTest {
      * 水平分片：分表插入数据测试
      */
     @Test
-    public void testInsertOrderTableStrategy() {
+    public void testInsertTableStrategy() {
 
         for (long i = 0; i < 4; i++) {
             Yh yh = new Yh();
             yh.setName("test" + i);
+            Date date = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(2023, (int)i, new Random().nextInt(15)); // 年份从1开始，月份从0开始
+            // 将Calendar对象转换为Date对象
+            date = calendar.getTime();
+            yh.setCreateTime(date);
             yhMapper.insert(yh);
         }
     }
@@ -47,7 +57,15 @@ public class YhTest {
     @Test
     public void testShardingSelectByName() {
         QueryWrapper<Yh> yhQueryWrapper = new QueryWrapper<>();
-        yhQueryWrapper.eq("name", "test1");
+        yhQueryWrapper.eq("name", "test3");
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2023, 3, 6,17,30,32); // 年份从1开始，月份从0开始
+        // 将毫秒设置为0，否则数据库查询会有问题
+        calendar.set(Calendar.MILLISECOND,0);
+
+        // 将Calendar对象转换为Date对象
+        Date date = calendar.getTime();
+        yhQueryWrapper.eq("create_time", date);
         List<Yh> yhList = yhMapper.selectList(yhQueryWrapper);
         yhList.forEach(System.out::println);
     }
